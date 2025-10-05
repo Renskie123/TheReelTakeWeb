@@ -1,0 +1,200 @@
+﻿@using TheReelTake.Models.TMDBModels
+@model MovieDetail
+
+<link rel="stylesheet" href="~/css/movieDetail.css" asp-append-version="true" />
+
+<div class="container">
+    <!-- Movie Header Section -->
+    <div class="movie-header">
+        <div class="movie-poster">
+            <img src="@Model.FullPosterPath" alt="@Model.Title">
+        </div>
+        <div class="movie-info">
+            <h1 class="movie-title">@Model.Title</h1>
+            <p class="movie-release-date">@Model.ReleaseDate?.ToString("MMMM dd, yyyy")</p>
+
+            <div class="genres">
+                @foreach (var genre in Model.Genres)
+                {
+                    <span class="genre-badge">@genre.Name</span>
+                }
+            </div>
+
+            <p class="movie-overview">@Model.Overview</p>
+
+            <div class="movie-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Rating</span>
+                    <div class="rating">
+                        <span class="rating-value">@Model.VoteAverage.ToString("0.0")</span>
+                        <span class="rating-count">(@Model.VoteCount votes)</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Runtime</span>
+                    <span class="stat-value">@(Model.Runtime?.ToString() ?? "N/A") minutes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Budget</span>
+                    <span class="stat-value">@(Model.Budget > 0 ? Model.Budget.ToString("C0") : "N/A")</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Revenue</span>
+                    <span class="stat-value">@(Model.Revenue > 0 ? Model.Revenue.ToString("C0") : "N/A")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cast Section -->
+    @if (Model.Credits?.Cast?.Any() == true)
+    {
+        <div class="cast-section">
+            <h2 class="section-title">Cast</h2>
+            <div class="cast-grid" id="castGrid">
+                @{
+                    var castCount = 0;
+                    var totalCast = Model.Credits.Cast.Count();
+                    foreach (var actor in Model.Credits.Cast)
+                    {
+                        if (castCount < 12)
+                        {
+                            <div class="cast-member">
+                                <a href="@Url.Action("ActorDetails", new { id = actor.Id })">
+                                    <div class="cast-photo">
+                                        <img src="@actor.FullProfilePath" alt="@actor.Name" onerror="this.src='https://via.placeholder.com/150x225/eee/ccc?text=No+Image'">
+                                    </div>
+                                    <h3 class="cast-name">@actor.Name</h3>
+                                    <p class="cast-character">@actor.Character</p>
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="cast-member hidden" data-cast-member="true">
+                                <a href="@Url.Action("ActorDetails", new { id = actor.Id })">
+                                    <div class="cast-photo">
+                                        <img src="@actor.FullProfilePath" alt="@actor.Name" onerror="this.src='https://via.placeholder.com/150x225/eee/ccc?text=No+Image'">
+                                    </div>
+                                    <h3 class="cast-name">@actor.Name</h3>
+                                    <p class="cast-character">@actor.Character</p>
+                                </a>
+                            </div>
+                        }
+                        castCount++;
+                    }
+                }
+            </div>
+            @if (totalCast > 12)
+            {
+                <button class="toggle-btn" id="castToggleBtn" data-showing="less">See More Cast</button>
+            }
+        </div>
+    }
+
+    <!-- Crew Section -->
+    @if (Model.Credits?.Crew?.Any() == true)
+    {
+        <div class="crew-section">
+            <h2 class="section-title">Crew</h2>
+            <div class="crew-grid" id="crewGrid">
+                @{
+                    var crewCount = 0;
+                    var totalCrew = Model.Credits.Crew.Count();
+                    foreach (var crew in Model.Credits.Crew)
+                    {
+                        if (crewCount < 12)
+                        {
+                            <div class="crew-member">
+                                <a href="@Url.Action("ActorDetails", new { id = crew.Id })">
+                                    <div class="crew-photo">
+                                        <img src="@crew.FullProfilePath" alt="@crew.Name" onerror="this.src='https://via.placeholder.com/150x225/eee/ccc?text=No+Image'">
+                                    </div>
+                                    <h3 class="crew-name">@crew.Name</h3>
+                                    <p class="crew-character">@crew.Job</p>
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="crew-member hidden" data-crew-member="true">
+                                <a href="@Url.Action("ActorDetails", new { id = crew.Id })">
+                                    <div class="crew-photo">
+                                        <img src="@crew.FullProfilePath" alt="@crew.Name" onerror="this.src='https://via.placeholder.com/150x225/eee/ccc?text=No+Image'">
+                                    </div>
+                                    <h3 class="crew-name">@crew.Name</h3>
+                                    <p class="crew-character">@crew.Job</p>
+                                </a>
+                            </div>
+                        }
+                        crewCount++;
+                    }
+                }
+            </div>
+            @if (totalCrew > 12)
+            {
+                <button class="toggle-btn" id="crewToggleBtn" data-showing="less">See More Crew</button>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cast Toggle functionality
+            const castToggleBtn = document.getElementById('castToggleBtn');
+            if (castToggleBtn) {
+                castToggleBtn.addEventListener('click', function() {
+                    const hiddenCastMembers = document.querySelectorAll('[data-cast-member].hidden');
+                    const visibleCastMembers = document.querySelectorAll('[data-cast-member]:not(.hidden)');
+
+                    if (this.getAttribute('data-showing') === 'less') {
+                        // Show all cast members
+                        hiddenCastMembers.forEach(member => {
+                            member.classList.remove('hidden');
+                        });
+                        this.textContent = 'See Less Cast';
+                        this.setAttribute('data-showing', 'more');
+                    } else {
+                        // Hide extra cast members (keep only first 12)
+                        visibleCastMembers.forEach((member, index) => {
+                            if (index >= 0) {
+                                member.classList.add('hidden');
+                            }
+                        });
+                        this.textContent = `See More Cast`;
+                        this.setAttribute('data-showing', 'less');
+                    }
+                });
+            }
+
+            // Crew Toggle functionality
+            const crewToggleBtn = document.getElementById('crewToggleBtn');
+            if (crewToggleBtn) {
+                crewToggleBtn.addEventListener('click', function() {
+                    const hiddenCrewMembers = document.querySelectorAll('[data-crew-member].hidden');
+                    const visibleCrewMembers = document.querySelectorAll('[data-crew-member]:not(.hidden)');
+
+                    if (this.getAttribute('data-showing') === 'less') {
+                        // Show all crew members
+                        hiddenCrewMembers.forEach(member => {
+                            member.classList.remove('hidden');
+                        });
+                        this.textContent = 'See Less Crew';
+                        this.setAttribute('data-showing', 'more');
+                    } else {
+                        // Hide extra crew members (keep only first 8)
+                        visibleCrewMembers.forEach((member, index) => {
+                            if (index >= 0) {
+                                member.classList.add('hidden');
+                            }
+                        });
+                        this.textContent = `See More Crew`;
+                        this.setAttribute('data-showing', 'less');
+                    }
+                });
+            }
+        });
+    </script>
+}

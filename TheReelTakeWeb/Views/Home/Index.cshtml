@@ -1,0 +1,79 @@
+﻿@model TheReelTake.Models.TMDBModels.ViewModel.HomeViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+    var itemCount = 12;
+}
+
+<link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+
+<div class="section-header">
+    <h1 class="section-title">Top Rated Movies</h1>
+</div>
+<div class="movies-grid">
+    @foreach (var movie in Model.PopularMovies.Take(itemCount))
+    {
+                <div class="movie-card">
+            <a href="@Url.Action("Details", new { id = movie.Id })" class="movie-card-link">
+                    <div class="poster">
+                        <img src="@movie.FullPosterPath" alt="@movie.Title" />
+                        <div class="rating-container">
+                            <p class="rating">@movie.VoteAverage.ToString("0.0")</p>
+                        </div>
+                    </div>
+                    <div class="movie-details">
+                        <h4 class="title">@movie.Title</h4>
+                        <h5 class="year">@movie.ReleaseDate?.ToString("yyyy")</h5>
+                    </div>
+            </a>
+                </div>
+    } 
+</div>
+
+
+<div class="section-header">
+    <h1 class="section-title">Top Rated Movies</h1>
+</div>
+<div class="movies-grid">
+    @foreach (var movie in Model.TopRatedMovies.Take(itemCount))
+    {
+            <div class="movie-card">
+            <a href="@Url.Action("Details", new { id = movie.Id })" class="movie-card-link">
+                <div class="poster">
+                    <img src="@movie.FullPosterPath" alt="@movie.Title" />
+                    <div class="rating-container">
+                        <p class="rating">@movie.VoteAverage.ToString("0.0")</p>
+                    </div>
+                </div>
+                <div class="movie-details">
+                    <h4 class="title">@movie.Title</h4>
+                    <h5 class="year">@movie.ReleaseDate?.ToString("yyyy")</h5>
+                </div>
+                </a>
+            </div>
+    }
+</div>
+
+
+<div class="section-header">
+    <h1 class="section-title">Upcoming Movies</h1>
+</div>
+<div class="movies-grid">
+    @foreach (var movie in Model.UpcomingMovies.Take(itemCount))
+    {
+            <div class="movie-card">
+            <a href="@Url.Action("Details", new { id = movie.Id })" class="movie-card-link">
+                <div class="poster">
+                    <img src="@movie.FullPosterPath" alt="@movie.Title" />
+                    <div class="rating-container">
+                        <p class="rating">@movie.VoteAverage.ToString("0.0")</p>
+                    </div>
+                </div>
+                <div class="movie-details">
+                    <h4 class="title">@movie.Title</h4>
+                    <h5 class="year">@movie.ReleaseDate?.ToString("yyyy")</h5>
+                </div>
+                </a>
+            </div>
+    }
+</div>

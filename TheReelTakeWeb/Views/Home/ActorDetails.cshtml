@@ -1,0 +1,237 @@
+﻿@model TheReelTake.Models.TMDBModels.ViewModel.ActorMovieViewModel
+
+<link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/actorDetail.css" asp-append-version="true" />
+
+
+<div class="actor-header">
+    <div class="actor-photo">
+        <img src="@Model.Actor.FullProfilePath" alt="@Model.Actor.Name">
+    </div>
+    <div class="actor-info">
+        <h1 class="actor-name">@Model.Actor.Name</h1>
+        <p class="actor-birthdate">Born: @Model.Actor.Birthday</p>
+        <p class="actor-birthplace">Birth Place: @Model.Actor.PlaceOfBirth</p>
+        @if (Model.Actor.Gender == 1)
+        {
+            <p class="actor-birthplace">Gender: Female</p>
+        }
+        else if (Model.Actor.Gender == 2)
+        {
+            <p class="actor-birthplace">Gender: Male</p>
+        }
+        else
+        {
+            <p class="actor-birthplace">Gender: Not Specified</p>
+        }
+        <span class="known-for">Known For: Acting</span>
+    </div>
+</div>
+
+<div class="actor-details">
+    <div class="biography">
+        <h2 class="section-title">Biography</h2>
+        <p class="biography-text">
+            @Model.Actor.Biography
+        </p>
+    </div>
+
+    <div class="also-known-as">
+        <h2 class="section-title">Also Known As</h2>
+        <div class="aka-list">
+            @foreach (var nickname in Model.Actor.AlsoKnownAs)
+            {
+                <span class="aka-item">@nickname</span>
+            }
+        </div>
+    </div>
+
+    <div class="movie">
+        <h2 class="section-title">Movies</h2>
+        <div class="movies-grid" id="moviesGrid">
+            <!-- Your existing movie grid CSS will handle this -->
+            @foreach (var movie in Model.Movies)
+            {
+                <div class="movie-card">
+                    <a href="@Url.Action("Details", new { id = movie.Id })" class="movie-card-link">
+                        <div class="poster">
+                            <img src="@movie.FullPosterPath" alt="@movie.Title" />
+                            <div class="rating-container">
+                                <p class="rating">@movie.VoteAverage.ToString("0.0")</p>
+                            </div>
+                        </div>
+                        <div class="movie-details">
+                            <h4 class="title">@movie.Title</h4>
+                            <h5 class="year">@movie.ReleaseDate?.ToString("yyyy")</h5>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@* @section Sctipts {
+    <script>
+        // Pagination variables
+        let currentPage = 1;
+        let itemsPerPage = 18;
+        const totalItems = movies.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+        // DOM elements
+        const moviesGrid = document.getElementById('moviesGrid');
+        const pagination = document.getElementById('pagination');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const paginationInfo = document.getElementById('paginationInfo');
+        const itemsPerPageSelect = document.getElementById('itemsPerPage');
+
+        // Initialize pagination
+        function initPagination() {
+            renderMovies();
+            renderPagination();
+            updatePaginationInfo();
+        }
+
+        // Render movies for current page
+        function renderMovies() {
+            moviesGrid.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            const currentMovies = movies.slice(startIndex, endIndex);
+
+            currentMovies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+
+                movieCard.innerHTML = `
+                    <a href="/Movies/Details/${movie.id}" class="movie-card-link">
+                        <div class="poster">
+                            <img src="${movie.fullPosterPath}" alt="${movie.title}" />
+                            <div class="rating-container">
+                                <p class="rating">${movie.voteAverage}</p>
+                            </div>
+                        </div>
+                        <div class="movie-details">
+                            <h4 class="title">${movie.title}</h4>
+                            <h5 class="year">${movie.releaseDate.getFullYear()}</h5>
+                        </div>
+                    </a>
+                `;
+
+                moviesGrid.appendChild(movieCard);
+            });
+        }
+
+        // Render pagination controls
+        function renderPagination() {
+            pagination.innerHTML = '';
+
+            // Always show first page
+            addPageItem(1);
+
+            // Show ellipsis if needed
+            if (currentPage > 3) {
+                const ellipsis = document.createElement('li');
+                ellipsis.className = 'page-item';
+                ellipsis.innerHTML = '<span class="page-link disabled">...</span>';
+                pagination.appendChild(ellipsis);
+            }
+
+            // Show pages around current page
+            const startPage = Math.max(2, currentPage - 1);
+            const endPage = Math.min(totalPages - 1, currentPage + 1);
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i !== 1 && i !== totalPages) {
+                    addPageItem(i);
+                }
+            }
+
+            // Show ellipsis if needed
+            if (currentPage < totalPages - 2) {
+                const ellipsis = document.createElement('li');
+                ellipsis.className = 'page-item';
+                ellipsis.innerHTML = '<span class="page-link disabled">...</span>';
+                pagination.appendChild(ellipsis);
+            }
+
+            // Always show last page if there is more than one page
+            if (totalPages > 1) {
+                addPageItem(totalPages);
+            }
+
+            // Update button states
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages;
+
+            if (prevPageBtn.disabled) {
+                prevPageBtn.classList.add('disabled');
+            } else {
+                prevPageBtn.classList.remove('disabled');
+            }
+
+            if (nextPageBtn.disabled) {
+                nextPageBtn.classList.add('disabled');
+            } else {
+                nextPageBtn.classList.remove('disabled');
+            }
+        }
+
+        // Add a page number to pagination
+        function addPageItem(pageNumber) {
+            const pageItem = document.createElement('li');
+            pageItem.className = 'page-item';
+
+            const pageLink = document.createElement('a');
+            pageLink.className = `page-link ${pageNumber === currentPage ? 'active' : ''}`;
+            pageLink.href = '#';
+            pageLink.textContent = pageNumber;
+
+            pageLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                goToPage(pageNumber);
+            });
+
+            pageItem.appendChild(pageLink);
+            pagination.appendChild(pageItem);
+        }
+
+        // Go to specific page
+        function goToPage(pageNumber) {
+            if (pageNumber < 1 || pageNumber > totalPages || pageNumber === currentPage) return;
+
+            currentPage = pageNumber;
+            renderMovies();
+            renderPagination();
+            updatePaginationInfo();
+
+            // Scroll to top of movies grid
+            moviesGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Update pagination info text
+        function updatePaginationInfo() {
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+            paginationInfo.textContent = `Showing ${startItem}-${endItem} of ${totalItems} movies`;
+        }
+
+        // Event listeners
+        prevPageBtn.addEventListener('click', () => goToPage(currentPage - 1));
+        nextPageBtn.addEventListener('click', () => goToPage(currentPage + 1));
+
+        itemsPerPageSelect.addEventListener('change', (e) => {
+            itemsPerPage = parseInt(e.target.value);
+            currentPage = 1;
+            initPagination();
+        });
+
+        // Initialize
+        initPagination();
+    </script>
+} *@
